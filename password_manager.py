@@ -2,14 +2,24 @@ from posixpath import split
 from cryptography.fernet import Fernet
 
 
-pwd = input("what is the master password ? : ")
 
+'''
 def write_key():
     key = Fernet.generate_key()
     with open("keypass.key", "wb" ) as key_file:
-        key_file.write(key)
+        key_file.write(key)'''
 
-write_key()        
+def load_key():
+     file =open("keypass.key", "rb")
+     key = file.read()
+     file.close()
+     return key
+
+pwd = input("what is the master password ? : ")     
+key = load_key() + pwd.encode()
+fer = Fernet(key)
+
+
 
 def view():
      with open('password_manager.txt', 'r') as f :
@@ -17,7 +27,7 @@ def view():
           data = lines.rstrip()
           user, passw= data.split("|")
         
-        print("username : ", user , "pasword : ", passw)
+        print("username : ", user , "password : ",    fer.decrypt(passw.encode()).decode())
 
 
 def add():
@@ -25,7 +35,7 @@ def add():
     password = input("user's pawd : ")
 
     with open('password_manager.txt', 'a') as f :
-        f.write(name + '|' + password + "\n")
+       f.write(name + "|" + fer.encrypt(password.encode()).decode() + "\n")
 
 
 while True:
